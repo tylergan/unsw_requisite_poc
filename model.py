@@ -45,10 +45,9 @@ class Course(AbstractModel):
         self.query = query
     
     def evaluate_requisites(self, student: Student) -> bool:
-        completed_courses = student.completed_courses
         eval_expression: List[str] = []
         for token in self.query.expr_tokens:
-            eval_expression = self._expression_builder(token, eval_expression, completed_courses, student)
+            eval_expression = self._expression_builder(token, eval_expression, student)
         
         to_eval: str = " ".join(eval_expression)
         logging.debug(f"Expression to evaluate: {to_eval}")
@@ -60,11 +59,10 @@ class Course(AbstractModel):
     def _expression_builder(
         token: str, 
         eval_expression: List[str], 
-        completed_courses: Set[str], 
         student: Student
     ) -> List[str]:
         if re.match(r'[A-Z]{4}\d{4}', token):
-            is_completed = 'True' if token in completed_courses else 'False'
+            is_completed = 'True' if token in student.completed_courses else 'False'
             eval_expression.append(is_completed)
         elif token.endswith('UOC'):
             # Remove 'UOC' and convert to integer
